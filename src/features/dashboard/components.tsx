@@ -13,15 +13,15 @@ export const CHART_COLORS = [
 ];
 
 const ACCENT_COLORS = [
-  "from-amber-500/20 to-orange-500/5",
+  "from-cyan-500/20 to-blue-500/5",
   "from-emerald-500/20 to-teal-500/5",
   "from-violet-500/20 to-purple-500/5",
+  "from-amber-500/20 to-orange-500/5",
   "from-rose-500/20 to-pink-500/5",
-  "from-sky-500/20 to-blue-500/5",
   "from-lime-500/20 to-green-500/5",
 ];
 
-const SPARKLINE_COLORS = ["#f59e0b", "#10b981", "#8b5cf6", "#f43f5e", "#0ea5e9", "#84cc16"];
+const SPARKLINE_COLORS = ["#22d3ee", "#34d399", "#a78bfa", "#fbbf24", "#fb7185", "#a3e635"];
 
 export function Kpi({
   label,

@@ -188,12 +188,18 @@ export function EventsTable({ events, loading }: { events: RideEvent[]; loading:
                       })}
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={`text-[10px] font-semibold border ${EVENT_COLORS[e.event_type]?.badge ?? "bg-secondary/50 text-secondary-foreground"}`}
-                      >
-                        {formatType(e.event_type)}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="size-1.5 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: EVENT_COLORS[e.event_type]?.hex ?? "#888" }}
+                        />
+                        <Badge
+                          variant="outline"
+                          className={`text-[10px] font-semibold border ${EVENT_COLORS[e.event_type]?.badge ?? "bg-secondary/50 text-secondary-foreground"}`}
+                        >
+                          {formatType(e.event_type)}
+                        </Badge>
+                      </div>
                     </TableCell>
                     <TableCell className="font-mono text-xs text-muted-foreground">
                       {e.user_id}

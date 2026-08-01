@@ -174,59 +174,62 @@ function AppLayout() {
   // Authenticated: sidebar layout
   return (
     <div className="flex min-h-screen">
-      {/* Desktop Sidebar */}
+      {/* Desktop Sidebar — Nodus-style icon nav */}
       <aside
-        className="hidden lg:flex lg:flex-col lg:w-60 lg:border-r lg:border-white/5 lg:bg-sidebar/80 lg:backdrop-blur-xl fixed inset-y-0 left-0 z-30"
+        className="hidden lg:flex lg:flex-col lg:w-[72px] lg:border-r lg:border-white/5 lg:bg-[#0a0f1a]/90 lg:backdrop-blur-xl fixed inset-y-0 left-0 z-30"
         aria-label="Main navigation"
       >
         {/* Brand */}
-        <div className="flex items-center gap-3 px-5 py-5 border-b border-white/5">
-          <span className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 text-primary shadow-lg shadow-primary/10">
+        <div className="flex items-center justify-center py-5 border-b border-white/5">
+          <span className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/10 text-cyan-400 shadow-lg shadow-cyan-500/10">
             <Activity className="size-5" />
           </span>
-          <div className="leading-tight">
-            <span className="block text-sm font-bold tracking-tight">Kamel Ride</span>
-            <span className="block text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-medium">
-              Analytics
-            </span>
-          </div>
         </div>
 
-        {/* Nav Items */}
-        <nav className="flex-1 px-3 py-4 space-y-1">
+        {/* Nav Items — icon only */}
+        <nav className="flex-1 flex flex-col items-center gap-1 py-4">
           {NAV_ITEMS.map((item) => (
-            <NavLink
+            <Link
               key={item.to}
               to={item.to}
-              label={item.label}
-              icon={<item.icon className="size-4" />}
-            />
+              className="group relative flex size-10 items-center justify-center rounded-xl text-muted-foreground transition-all duration-200 hover:bg-white/5 hover:text-foreground"
+              activeProps={{
+                className: "bg-cyan-500/10 text-cyan-400",
+              }}
+              activeOptions={{ exact: true }}
+            >
+              {({ isActive }) => (
+                <>
+                  {isActive && (
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-cyan-400" />
+                  )}
+                  <item.icon className="size-5" />
+                  <span className="absolute left-full ml-3 rounded-lg bg-white/10 backdrop-blur-sm px-2.5 py-1 text-xs font-medium text-foreground opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap border border-white/10">
+                    {item.label}
+                  </span>
+                </>
+              )}
+            </Link>
           ))}
         </nav>
 
         {/* User Section */}
-        <div className="border-t border-border/30 px-3 py-3">
-          <div className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors hover:bg-accent/50">
-            <Avatar className="size-8">
-              <AvatarImage src={profile.avatar} alt={profile.name} />
-              <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
-                {profile.name.slice(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium truncate">{profile.name}</p>
-              <p className="text-[10px] text-muted-foreground truncate">{profile.email}</p>
-            </div>
-            <ThemeToggle />
-            <button
-              onClick={signOut}
-              className="size-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
-              aria-label="Sign out"
-              title="Sign out"
-            >
-              <LogOut className="size-3.5" />
-            </button>
-          </div>
+        <div className="border-t border-white/5 px-3 py-3 flex flex-col items-center gap-2">
+          <ThemeToggle />
+          <Avatar className="size-8 ring-2 ring-white/10">
+            <AvatarImage src={profile.avatar} alt={profile.name} />
+            <AvatarFallback className="text-[10px] bg-cyan-500/15 text-cyan-400">
+              {profile.name.slice(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <button
+            onClick={signOut}
+            className="size-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+            aria-label="Sign out"
+            title="Sign out"
+          >
+            <LogOut className="size-4" />
+          </button>
         </div>
       </aside>
 
@@ -276,7 +279,7 @@ function AppLayout() {
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 lg:pl-60 pt-16 lg:pt-0">
+      <main className="flex-1 lg:pl-[72px] pt-16 lg:pt-0">
         <div className="mx-auto max-w-7xl">
           <Outlet />
         </div>

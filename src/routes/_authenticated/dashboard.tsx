@@ -35,6 +35,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useRealtimeEvents } from "@/hooks/use-realtime-events";
 import { useBroadcastNotifications } from "@/hooks/use-broadcast-notifications";
 import { usePresence } from "@/hooks/use-presence";
+import { useAuthUser } from "@/features/auth/use-auth-user";
 import { fetchEvents, fetchTotalCount, resolveRange, type RangeKey } from "@/lib/events";
 import { useAnalytics } from "@/features/dashboard/use-analytics";
 import {
@@ -79,7 +80,15 @@ function computeSparkData(events: ReturnType<typeof useAnalytics>["overTime"]): 
 function Dashboard() {
   useRealtimeEvents();
   useBroadcastNotifications();
-  const { onlineCount } = usePresence("Viewer", "dashboard");
+  const { profile } = useAuthUser();
+  const { onlineCount } = usePresence(profile.name || "Viewer", "dashboard");
+
+  const timeOfDay = (() => {
+    const h = new Date().getHours();
+    if (h < 12) return "morning";
+    if (h < 17) return "afternoon";
+    return "evening";
+  })();
 
   const [rangeKey, setRangeKey] = useState<RangeKey>("7d");
   const [customFrom, setCustomFrom] = useState("");
@@ -124,12 +133,14 @@ function Dashboard() {
 
   return (
     <div className="space-y-6 gradient-mesh min-h-screen -mx-6 -my-8 px-6 py-8">
-      {/* Header */}
+      {/* Greeting — Nodus-style */}
       <div className="flex flex-wrap items-end justify-between gap-3 animate-fade-in-up">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Realtime analytics</h1>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            Good {timeOfDay}, {profile.name.split(" ")[0]}.
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Every ingested ride event lands here the moment it is written.
+            You have {totalQuery.data ?? 0} events tracked today.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -141,7 +152,7 @@ function Dashboard() {
               <Eye className="size-3" /> {onlineCount} online
             </Badge>
           )}
-          <Badge variant="outline" className="gap-2 border-primary/30 text-primary bg-primary/5">
+          <Badge variant="outline" className="gap-2 border-cyan-500/30 text-cyan-400 bg-cyan-500/5">
             <Radio className="size-3.5 animate-pulse" /> Live stream
           </Badge>
         </div>
@@ -406,27 +417,42 @@ function Dashboard() {
             <EmptyState />
           ) : (
             <div className="flex h-full items-center gap-6">
-              <div className="h-full flex-1">
+              <div className="h-full flex-1 relative">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
+                    <defs>
+                      {CHART_COLORS.map((color, i) => (
+                        <linearGradient key={i} id={`donut-grad-${i}`} x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0%" stopColor={color} stopOpacity={1} />
+                          <stop offset="100%" stopColor={color} stopOpacity={0.6} />
+                        </linearGradient>
+                      ))}
+                    </defs>
                     <Pie
                       data={stats.byType}
                       dataKey="count"
                       nameKey="type"
                       cx="50%"
                       cy="50%"
-                      innerRadius="45%"
-                      outerRadius="80%"
-                      paddingAngle={3}
+                      innerRadius="50%"
+                      outerRadius="82%"
+                      paddingAngle={2}
                       strokeWidth={0}
                     >
                       {stats.byType.map((_, i) => (
-                        <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                        <Cell key={i} fill={`url(#donut-grad-${i % CHART_COLORS.length})`} />
                       ))}
                     </Pie>
                     <Tooltip content={<DonutTooltip />} />
                   </PieChart>
                 </ResponsiveContainer>
+                {/* Center label */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <span className="text-2xl font-bold font-mono tabular-nums">{events.length}</span>
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                    events
+                  </span>
+                </div>
               </div>
               <div className="flex-shrink-0 space-y-2 pr-4">
                 {stats.byType.map((entry, i) => (
