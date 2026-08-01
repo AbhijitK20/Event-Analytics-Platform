@@ -1,31 +1,25 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 import { NewEventSchema, FetchEventsQuerySchema, type ValidatedNewEvent } from "./schemas";
-import type { Database } from "@/integrations/supabase/types";
 
 // Rate limiting: simple in-memory tracker
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT_WINDOW = 60_000; // 1 minute
-const RATE_LIMIT_MAX = 500; // max events per window
+const RATE_LIMIT_WINDOW = 60_000;
+const RATE_LIMIT_MAX = 500;
 
 function checkRateLimit(userId: string): void {
   const now = Date.now();
   const entry = rateLimitMap.get(userId);
-
   if (!entry || now > entry.resetAt) {
     rateLimitMap.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
     return;
   }
-
   if (entry.count >= RATE_LIMIT_MAX) {
     throw new Error(`Rate limit exceeded. Max ${RATE_LIMIT_MAX} events per minute.`);
   }
-
   entry.count++;
 }
 
-// Cleanup old entries periodically
 setInterval(() => {
   const now = Date.now();
   for (const [key, entry] of rateLimitMap) {
@@ -33,40 +27,12 @@ setInterval(() => {
   }
 }, 60_000);
 
-/**
- * Extract the Bearer token from the request headers (attached by attachSupabaseAuth middleware)
- * and create a Supabase client authenticated as that user.
- */
-function getAuthenticatedClient() {
-  const request = getRequest();
-  const authHeader = request?.headers?.get("authorization");
-
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    throw new Error("Authentication required");
-  }
-
-  const token = authHeader.replace("Bearer ", "");
-  const SUPABASE_URL = process.env.SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL;
-  const SUPABASE_KEY =
-    process.env.SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-  if (!SUPABASE_URL || !SUPABASE_KEY) {
-    throw new Error("Missing Supabase configuration");
-  }
-
-  return createClient<Database>(SUPABASE_URL, SUPABASE_KEY, {
-    global: {
-      headers: { Authorization: `Bearer ${token}` },
-    },
-    auth: {
-      storage: undefined,
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  });
+async function requireAuth() {
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data.user) throw new Error("Authentication required");
+  return data.user;
 }
 
-// Simplified event type for serialization (no Record<string, unknown>)
 type SerializableEvent = {
   id: string;
   event_type: string;
@@ -83,12 +49,7 @@ export const ingestEventsFn = createServerFn({ method: "POST" })
     return { events: validated };
   })
   .handler(async ({ data }) => {
-    const supabase = getAuthenticatedClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error("Authentication required");
-
+    const user = await requireAuth();
     checkRateLimit(user.id);
 
     const rows = data.events.map((e) => ({
@@ -111,11 +72,7 @@ export const fetchEventsFn = createServerFn({ method: "GET" })
     FetchEventsQuerySchema.parse(input),
   )
   .handler(async ({ data }): Promise<SerializableEvent[]> => {
-    const supabase = getAuthenticatedClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error("Authentication required");
+    await requireAuth();
 
     const { data: rows, error } = await supabase
       .from("events")
@@ -131,11 +88,7 @@ export const fetchEventsFn = createServerFn({ method: "GET" })
 
 export const fetchTotalCountFn = createServerFn({ method: "GET" }).handler(
   async (): Promise<number> => {
-    const supabase = getAuthenticatedClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error("Authentication required");
+    await requireAuth();
 
     const { count, error } = await supabase
       .from("events")
@@ -148,11 +101,7 @@ export const fetchTotalCountFn = createServerFn({ method: "GET" }).handler(
 
 export const clearEventsFn = createServerFn({ method: "POST" }).handler(
   async (): Promise<{ deleted: boolean }> => {
-    const supabase = getAuthenticatedClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error("Authentication required");
+    const user = await requireAuth();
 
     const { error } = await supabase.from("events").delete().eq("owner_id", user.id);
 
