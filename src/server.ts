@@ -25,10 +25,7 @@ function applySecurityHeaders(response: Response): Response {
   headers.set("X-Frame-Options", "DENY");
   headers.set("X-XSS-Protection", "1; mode=block");
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  headers.set(
-    "Permissions-Policy",
-    "camera=(), microphone=(), geolocation=(), interest-cohort=()",
-  );
+  headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), interest-cohort=()");
   headers.set(
     "Content-Security-Policy",
     [
