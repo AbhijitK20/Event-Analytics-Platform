@@ -112,7 +112,7 @@ function Landing() {
   }, [user, loading, navigate]);
 
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative overflow-hidden px-4 sm:px-6 py-8">
       {/* Hero Gradient Background */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-b from-primary/8 via-primary/3 to-transparent rounded-full blur-3xl" />

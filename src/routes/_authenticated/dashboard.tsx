@@ -123,7 +123,7 @@ function Dashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 gradient-mesh min-h-screen -mx-6 -my-8 px-6 py-8">
       {/* Header */}
       <div className="flex flex-wrap items-end justify-between gap-3 animate-fade-in-up">
         <div>

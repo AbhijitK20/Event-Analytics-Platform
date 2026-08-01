@@ -80,7 +80,7 @@ function AuthPage() {
   };
 
   return (
-    <div className="relative min-h-[80vh] flex items-center justify-center">
+    <div className="relative min-h-[80vh] flex items-center justify-center px-4">
       {/* Background gradient */}
       <div className="absolute inset-0 -z-10 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-gradient-to-b from-primary/6 to-transparent rounded-full blur-3xl" />

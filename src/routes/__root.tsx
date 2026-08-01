@@ -12,7 +12,6 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Activity, BarChart3, LayoutDashboard, LogOut, Menu, Moon, Sun, X } from "lucide-react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -52,9 +51,6 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-4">
@@ -180,17 +176,17 @@ function AppLayout() {
     <div className="flex min-h-screen">
       {/* Desktop Sidebar */}
       <aside
-        className="hidden lg:flex lg:flex-col lg:w-60 lg:border-r lg:border-border/40 lg:bg-sidebar/50 lg:backdrop-blur-sm fixed inset-y-0 left-0 z-30"
+        className="hidden lg:flex lg:flex-col lg:w-60 lg:border-r lg:border-white/5 lg:bg-sidebar/80 lg:backdrop-blur-xl fixed inset-y-0 left-0 z-30"
         aria-label="Main navigation"
       >
         {/* Brand */}
-        <div className="flex items-center gap-2.5 px-5 py-4 border-b border-border/30">
-          <span className="flex size-9 items-center justify-center rounded-xl bg-primary/15 text-primary">
+        <div className="flex items-center gap-3 px-5 py-5 border-b border-white/5">
+          <span className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 text-primary shadow-lg shadow-primary/10">
             <Activity className="size-5" />
           </span>
           <div className="leading-tight">
-            <span className="block text-sm font-semibold tracking-tight">Kamel Ride</span>
-            <span className="block text-[10px] text-muted-foreground uppercase tracking-widest">
+            <span className="block text-sm font-bold tracking-tight">Kamel Ride</span>
+            <span className="block text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-medium">
               Analytics
             </span>
           </div>
@@ -281,7 +277,7 @@ function AppLayout() {
 
       {/* Main Content */}
       <main className="flex-1 lg:pl-60 pt-16 lg:pt-0">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+        <div className="mx-auto max-w-7xl">
           <Outlet />
         </div>
       </main>

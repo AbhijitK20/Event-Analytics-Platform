@@ -49,20 +49,24 @@ export function Kpi({
       className={`panel-surface glow-hover relative overflow-hidden animate-fade-in-up stagger-${Math.min(index + 1, 6)}`}
     >
       <div
-        className={`absolute inset-x-0 top-0 h-24 bg-gradient-to-b ${accent} pointer-events-none`}
+        className={`absolute inset-x-0 top-0 h-28 bg-gradient-to-b ${accent} pointer-events-none opacity-80`}
+      />
+      <div
+        className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+        style={{ boxShadow: "inset 0 0 30px -10px var(--primary)" }}
       />
       <CardContent className="relative flex items-end justify-between gap-3 p-5 pt-6">
         <div className="flex-1 min-w-0">
-          <p className="text-[11px] uppercase tracking-widest text-muted-foreground font-medium">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-semibold">
             {label}
           </p>
           {loading ? (
-            <Skeleton className="mt-2.5 h-9 w-24" />
+            <Skeleton className="mt-2.5 h-10 w-28" />
           ) : (
-            <p className="mt-1.5 text-3xl font-bold tracking-tight tabular-nums">{value}</p>
+            <p className="mt-2 text-4xl font-bold tracking-tight tabular-nums font-mono">{value}</p>
           )}
           {trend && !loading && (
-            <div className="mt-2 flex items-center gap-1.5">
+            <div className="mt-2.5 flex items-center gap-1.5">
               {trend.value > 0 ? (
                 <TrendingUp className="size-3.5 text-emerald-400" />
               ) : trend.value < 0 ? (
@@ -71,7 +75,7 @@ export function Kpi({
                 <Minus className="size-3.5 text-muted-foreground" />
               )}
               <span
-                className={`text-xs font-medium ${
+                className={`text-xs font-semibold ${
                   trend.value > 0
                     ? "text-emerald-400"
                     : trend.value < 0
@@ -82,12 +86,12 @@ export function Kpi({
                 {trend.value > 0 ? "+" : ""}
                 {trend.value}%
               </span>
-              <span className="text-xs text-muted-foreground">{trend.label}</span>
+              <span className="text-[11px] text-muted-foreground">{trend.label}</span>
             </div>
           )}
         </div>
         <div className="flex flex-col items-end gap-2">
-          <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary inset-shadow">
+          <span className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 text-primary shadow-lg shadow-primary/10 inset-shadow">
             {icon}
           </span>
           {chartData.length > 0 && !loading && (
