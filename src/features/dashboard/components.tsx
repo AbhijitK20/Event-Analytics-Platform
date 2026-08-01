@@ -129,11 +129,12 @@ export function ChartTip({ active, payload, label }: TipProps) {
   if (!active || !payload?.length) return null;
   const row = payload[0].payload;
   const title = label ?? row.user ?? row.city ?? row.type ?? "";
+  const color = (row.fill as string) ?? (row.color as string) ?? "var(--chart-1)";
   return (
     <div className="glass rounded-xl border border-border/50 px-4 py-3 text-xs shadow-xl">
       <p className="font-semibold text-foreground mb-1">{String(title)}</p>
       <div className="flex items-center gap-2">
-        <span className="size-2 rounded-full" style={{ backgroundColor: "var(--chart-1)" }} />
+        <span className="size-2 rounded-full" style={{ backgroundColor: color }} />
         <span className="text-muted-foreground">
           <span className="font-medium text-foreground">{payload[0].value}</span> events
         </span>

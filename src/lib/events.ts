@@ -13,6 +13,23 @@ export const EVENT_TYPES = [
 
 export type EventType = (typeof EVENT_TYPES)[number];
 
+export const EVENT_COLORS: Record<string, { badge: string; hex: string }> = {
+  ride_requested: { badge: "bg-sky-500/15 text-sky-400 border-sky-500/20", hex: "#38bdf8" },
+  driver_assigned: {
+    badge: "bg-violet-500/15 text-violet-400 border-violet-500/20",
+    hex: "#a78bfa",
+  },
+  driver_arrived: { badge: "bg-blue-500/15 text-blue-400 border-blue-500/20", hex: "#60a5fa" },
+  ride_started: { badge: "bg-amber-500/15 text-amber-400 border-amber-500/20", hex: "#fbbf24" },
+  ride_completed: {
+    badge: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
+    hex: "#34d399",
+  },
+  ride_cancelled: { badge: "bg-rose-500/15 text-rose-400 border-rose-500/20", hex: "#fb7185" },
+  payment_success: { badge: "bg-lime-500/15 text-lime-400 border-lime-500/20", hex: "#a3e635" },
+  payment_failed: { badge: "bg-red-500/15 text-red-400 border-red-500/20", hex: "#f87171" },
+};
+
 export type RideEvent = {
   id: string;
   event_type: string;

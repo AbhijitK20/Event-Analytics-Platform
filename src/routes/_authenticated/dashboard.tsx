@@ -187,7 +187,7 @@ function Dashboard() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <Kpi
           label="Total Events"
-          value={totalQuery.data ?? 0}
+          value={totalQuery.isError ? "—" : (totalQuery.data ?? 0)}
           icon={<Activity className="size-4.5" />}
           loading={totalQuery.isLoading}
           sparkData={sparkData}

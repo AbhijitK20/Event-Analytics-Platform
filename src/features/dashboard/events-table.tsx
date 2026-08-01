@@ -15,21 +15,10 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "./components";
 import { formatType } from "./use-analytics";
-import type { RideEvent } from "@/lib/events";
+import { EVENT_COLORS, type RideEvent } from "@/lib/events";
 
 type SortKey = "created_at" | "event_type" | "user_id";
 const PAGE_SIZE = 10;
-
-const EVENT_COLORS: Record<string, string> = {
-  ride_requested: "bg-sky-500/15 text-sky-400 border-sky-500/20",
-  driver_assigned: "bg-violet-500/15 text-violet-400 border-violet-500/20",
-  driver_arrived: "bg-blue-500/15 text-blue-400 border-blue-500/20",
-  ride_started: "bg-amber-500/15 text-amber-400 border-amber-500/20",
-  ride_completed: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
-  ride_cancelled: "bg-rose-500/15 text-rose-400 border-rose-500/20",
-  payment_success: "bg-lime-500/15 text-lime-400 border-lime-500/20",
-  payment_failed: "bg-red-500/15 text-red-400 border-red-500/20",
-};
 
 function MetadataDisplay({ metadata }: { metadata: Record<string, unknown> | null }) {
   if (!metadata || Object.keys(metadata).length === 0) {
@@ -201,7 +190,7 @@ export function EventsTable({ events, loading }: { events: RideEvent[]; loading:
                     <TableCell>
                       <Badge
                         variant="outline"
-                        className={`text-[10px] font-semibold border ${EVENT_COLORS[e.event_type] ?? "bg-secondary/50 text-secondary-foreground"}`}
+                        className={`text-[10px] font-semibold border ${EVENT_COLORS[e.event_type]?.badge ?? "bg-secondary/50 text-secondary-foreground"}`}
                       >
                         {formatType(e.event_type)}
                       </Badge>

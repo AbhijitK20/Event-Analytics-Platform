@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Send, Shuffle, Sparkles, Trash2, Zap, Clock, ChevronRight, Play } from "lucide-react";
 import { toast } from "sonner";
 
@@ -28,7 +28,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { EVENT_TYPES, clearEvents, fetchEvents, resolveRange, ingestEvents } from "@/lib/events";
+import {
+  EVENT_TYPES,
+  EVENT_COLORS,
+  clearEvents,
+  fetchEvents,
+  resolveRange,
+  ingestEvents,
+} from "@/lib/events";
 import {
   buildMetadata,
   buildPresets,
@@ -56,17 +63,6 @@ export const Route = createFileRoute("/_authenticated/simulator")({
   }),
   component: Simulator,
 });
-
-const EVENT_BADGE_COLORS: Record<string, string> = {
-  ride_requested: "bg-sky-500/15 text-sky-400 border-sky-500/20",
-  driver_assigned: "bg-violet-500/15 text-violet-400 border-violet-500/20",
-  driver_arrived: "bg-blue-500/15 text-blue-400 border-blue-500/20",
-  ride_started: "bg-amber-500/15 text-amber-400 border-amber-500/20",
-  ride_completed: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
-  ride_cancelled: "bg-rose-500/15 text-rose-400 border-rose-500/20",
-  payment_success: "bg-lime-500/15 text-lime-400 border-lime-500/20",
-  payment_failed: "bg-red-500/15 text-red-400 border-red-500/20",
-};
 
 type FeedItem = {
   id: string;
@@ -113,7 +109,7 @@ function LiveFeed({ events }: { events: FeedItem[] }) {
             >
               <Badge
                 variant="outline"
-                className={`text-[9px] font-semibold border shrink-0 ${EVENT_BADGE_COLORS[e.event_type] ?? ""}`}
+                className={`text-[9px] font-semibold border shrink-0 ${EVENT_COLORS[e.event_type]?.badge ?? ""}`}
               >
                 {e.event_type.replace(/_/g, " ")}
               </Badge>
@@ -154,7 +150,7 @@ function Simulator() {
     refetchInterval: 5000,
   });
 
-  const presets = buildPresets();
+  const presets = useMemo(() => buildPresets(), []);
 
   const addFeedItem = (event_type: string, user_id: string, city?: string) => {
     const item: FeedItem = {
@@ -316,7 +312,7 @@ function Simulator() {
                       <SelectItem key={t} value={t}>
                         <span className="flex items-center gap-2">
                           <span
-                            className={`size-1.5 rounded-full ${EVENT_BADGE_COLORS[t]?.split(" ")[0] ?? "bg-muted"}`}
+                            className={`size-1.5 rounded-full ${EVENT_COLORS[t]?.badge.split(" ")[0] ?? "bg-muted"}`}
                           />
                           {t.replace(/_/g, " ")}
                         </span>
@@ -438,7 +434,7 @@ function Simulator() {
                 className="group flex items-center gap-3 rounded-xl border border-border/40 bg-muted/15 p-3.5 text-left transition-all duration-200 hover:bg-primary/[0.04] hover:border-primary/20 hover:shadow-sm disabled:opacity-50"
               >
                 <span
-                  className={`size-9 rounded-lg flex items-center justify-center flex-shrink-0 ${EVENT_BADGE_COLORS[preset.event_type]?.split(" ").slice(0, 2).join(" ") ?? "bg-muted"}`}
+                  className={`size-9 rounded-lg flex items-center justify-center flex-shrink-0 ${EVENT_COLORS[preset.event_type]?.badge.split(" ").slice(0, 2).join(" ") ?? "bg-muted"}`}
                 >
                   <Zap className="size-3.5" />
                 </span>

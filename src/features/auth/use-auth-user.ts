@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -23,15 +23,18 @@ export function useAuthUser() {
     };
   }, []);
 
-  const profile = {
-    name:
-      (user?.user_metadata?.full_name as string | undefined) ??
-      (user?.user_metadata?.name as string | undefined) ??
-      user?.email?.split("@")[0] ??
-      "",
-    avatar: (user?.user_metadata?.avatar_url as string | undefined) ?? "",
-    email: user?.email ?? "",
-  };
+  const profile = useMemo(
+    () => ({
+      name:
+        (user?.user_metadata?.full_name as string | undefined) ??
+        (user?.user_metadata?.name as string | undefined) ??
+        user?.email?.split("@")[0] ??
+        "",
+      avatar: (user?.user_metadata?.avatar_url as string | undefined) ?? "",
+      email: user?.email ?? "",
+    }),
+    [user],
+  );
 
   return { user, loading, profile };
 }

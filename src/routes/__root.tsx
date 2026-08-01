@@ -179,7 +179,10 @@ function AppLayout() {
   return (
     <div className="flex min-h-screen">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex lg:flex-col lg:w-60 lg:border-r lg:border-border/40 lg:bg-sidebar/50 lg:backdrop-blur-sm fixed inset-y-0 left-0 z-30">
+      <aside
+        className="hidden lg:flex lg:flex-col lg:w-60 lg:border-r lg:border-border/40 lg:bg-sidebar/50 lg:backdrop-blur-sm fixed inset-y-0 left-0 z-30"
+        aria-label="Main navigation"
+      >
         {/* Brand */}
         <div className="flex items-center gap-2.5 px-5 py-4 border-b border-border/30">
           <span className="flex size-9 items-center justify-center rounded-xl bg-primary/15 text-primary">
@@ -222,6 +225,7 @@ function AppLayout() {
             <button
               onClick={signOut}
               className="size-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
+              aria-label="Sign out"
               title="Sign out"
             >
               <LogOut className="size-3.5" />
@@ -242,6 +246,8 @@ function AppLayout() {
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="size-9 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-accent/50"
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
           >
             {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
