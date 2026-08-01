@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState, type ReactNode } from "react";
-import { Activity, BarChart3, LayoutDashboard, LogOut, Menu, X } from "lucide-react";
+import { Activity, BarChart3, LayoutDashboard, LogOut, Menu, Moon, Sun, X } from "lucide-react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthUser } from "@/features/auth/use-auth-user";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 function NotFoundComponent() {
   return (
@@ -104,9 +105,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head>
         <HeadContent />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{const t=localStorage.getItem('kamel-theme');if(t==='light')document.documentElement.classList.remove('dark');else document.documentElement.classList.add('dark')}catch(e){}`,
+          }}
+        />
       </head>
       <body>
         {children}
@@ -212,6 +218,7 @@ function AppLayout() {
               <p className="text-xs font-medium truncate">{profile.name}</p>
               <p className="text-[10px] text-muted-foreground truncate">{profile.email}</p>
             </div>
+            <ThemeToggle />
             <button
               onClick={signOut}
               className="size-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"

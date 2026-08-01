@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowDown, ArrowUp, Search } from "lucide-react";
+import { ArrowDown, ArrowUp, Download, Search } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -115,6 +115,31 @@ export function EventsTable({ events, loading }: { events: RideEvent[]; loading:
     );
   }
 
+  const exportCsv = () => {
+    const headers = ["Timestamp", "Event Type", "User ID", "City", "Fare", "Vehicle"];
+    const csvRows = rows.map((e) => {
+      const meta = (e.metadata ?? {}) as Record<string, unknown>;
+      return [
+        new Date(e.created_at).toISOString(),
+        e.event_type,
+        e.user_id,
+        String(meta.city ?? ""),
+        String(meta.fare ?? ""),
+        String(meta.vehicle_type ?? ""),
+      ];
+    });
+    const csv = [headers, ...csvRows]
+      .map((r) => r.map((c) => `"${c.replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `kamel-ride-events-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
@@ -130,9 +155,16 @@ export function EventsTable({ events, loading }: { events: RideEvent[]; loading:
             className="pl-9 h-9 bg-muted/30"
           />
         </div>
-        <span className="text-xs text-muted-foreground tabular-nums flex-shrink-0">
-          {rows.length} event{rows.length === 1 ? "" : "s"}
-        </span>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <span className="text-xs text-muted-foreground tabular-nums">
+            {rows.length} event{rows.length === 1 ? "" : "s"}
+          </span>
+          {rows.length > 0 && (
+            <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={exportCsv}>
+              <Download className="size-3" /> CSV
+            </Button>
+          )}
+        </div>
       </div>
 
       {rows.length === 0 ? (
