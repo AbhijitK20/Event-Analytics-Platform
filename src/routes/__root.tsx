@@ -25,6 +25,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthUser } from "@/features/auth/use-auth-user";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Sentry } from "@/integrations/sentry";
 
 function NotFoundComponent() {
   return (
@@ -132,12 +133,14 @@ function RootComponent() {
   }, [router, queryClient]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-background text-foreground">
-        <AppLayout />
-        <Toaster position="top-right" />
-      </div>
-    </QueryClientProvider>
+    <Sentry.ErrorBoundary fallback={<div>Something went wrong</div>}>
+      <QueryClientProvider client={queryClient}>
+        <div className="min-h-screen bg-background text-foreground">
+          <AppLayout />
+          <Toaster position="top-right" />
+        </div>
+      </QueryClientProvider>
+    </Sentry.ErrorBoundary>
   );
 }
 

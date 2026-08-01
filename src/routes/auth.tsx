@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Activity, ArrowRight, Mail, Lock, Loader2 } from "lucide-react";
+import { Activity, ArrowRight, Mail, Lock, Loader2, Eye, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,6 +31,7 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (!loading && user) navigate({ to: "/dashboard", replace: true });
@@ -105,7 +106,7 @@ function AuthPage() {
           <CardContent className="space-y-5 px-8 pb-8">
             {/* Google Sign In — styled like Nodus */}
             <Button
-              className="w-full h-11 gap-2.5 font-medium bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-foreground"
+              className="w-full h-11 gap-2.5 font-medium bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-foreground animate-fade-in-up"
               size="lg"
               disabled={busy}
               onClick={withGoogle}
@@ -136,14 +137,14 @@ function AuthPage() {
             </Button>
 
             {/* Divider */}
-            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <div className="flex items-center gap-3 text-xs text-muted-foreground animate-fade-in-up stagger-1">
               <span className="h-px flex-1 bg-border/60" />
               <span className="font-medium uppercase tracking-widest text-[10px]">or</span>
               <span className="h-px flex-1 bg-border/60" />
             </div>
 
             {/* Email/Password Form */}
-            <div className="space-y-3.5">
+            <div className="space-y-3.5 animate-fade-in-up stagger-2">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-xs font-medium text-muted-foreground">
                   Email
@@ -169,13 +170,20 @@ function AuthPage() {
                   <Lock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground/50" />
                   <Input
                     id="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="pl-10 h-11"
+                    className="pl-10 pr-10 h-11"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                  </button>
                 </div>
               </div>
               <div className="flex gap-2.5 pt-1">

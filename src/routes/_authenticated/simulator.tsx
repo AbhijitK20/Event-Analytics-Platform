@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -42,6 +43,7 @@ import {
   buildSampleEvents,
   type PresetEvent,
 } from "@/features/simulator/metadata";
+import { ScenarioBuilder } from "@/features/simulator/scenario-builder";
 import { useBroadcastSender } from "@/hooks/use-broadcast-notifications";
 
 export const Route = createFileRoute("/_authenticated/simulator")({
@@ -102,10 +104,11 @@ function LiveFeed({ events }: { events: FeedItem[] }) {
             No events yet. Generate or send one to see it appear here.
           </div>
         ) : (
-          events.map((e) => (
+          events.map((e, i) => (
             <div
               key={e.id}
-              className="flex items-center gap-2.5 rounded-lg border border-border/30 bg-muted/20 px-3 py-2 animate-fade-in-up transition-colors hover:bg-muted/40"
+              className="flex items-center gap-2.5 rounded-lg border border-border/30 bg-muted/20 px-3 py-2 animate-fade-in-up transition-all hover:bg-muted/40 hover:border-border/50"
+              style={{ animationDelay: `${i * 0.05}s` }}
             >
               <Badge
                 variant="outline"
@@ -350,16 +353,22 @@ function Simulator() {
                   type="button"
                   variant="ghost"
                   size="sm"
-                  onClick={() => {
+                  onClick={(e) => {
                     setMetadata(JSON.stringify(buildMetadata(), null, 2));
                     setJsonError(null);
+                    const icon = e.currentTarget.querySelector("svg");
+                    if (icon) {
+                      icon.style.animation = "spin-once 0.4s ease-in-out";
+                    }
                   }}
                   className="h-7 text-xs gap-1.5"
                 >
                   <Shuffle className="size-3" /> Randomize
                 </Button>
               </div>
-              <div className="relative rounded-lg border border-border/60 bg-background/50 overflow-hidden">
+              <div
+                className={`relative rounded-lg border bg-background/50 overflow-hidden transition-colors duration-300 ${jsonError ? "border-destructive/50 animate-shake" : "border-border/60"}`}
+              >
                 <div className="flex items-center gap-1.5 border-b border-border/40 bg-muted/20 px-3 py-1.5">
                   <span className="size-2 rounded-full bg-rose-500/60" />
                   <span className="size-2 rounded-full bg-amber-500/60" />
@@ -431,10 +440,10 @@ function Simulator() {
                 key={preset.label}
                 onClick={() => presetMutation.mutate(preset)}
                 disabled={presetMutation.isPending}
-                className="group flex items-center gap-3 rounded-xl border border-border/40 bg-muted/15 p-3.5 text-left transition-all duration-200 hover:bg-primary/[0.04] hover:border-primary/20 hover:shadow-sm disabled:opacity-50"
+                className="group flex items-center gap-3 rounded-xl border border-border/40 bg-muted/15 p-3.5 text-left transition-all duration-200 hover:bg-primary/[0.04] hover:border-primary/20 hover:shadow-sm active:scale-[0.98] disabled:opacity-50"
               >
                 <span
-                  className={`size-9 rounded-lg flex items-center justify-center flex-shrink-0 ${EVENT_COLORS[preset.event_type]?.badge.split(" ").slice(0, 2).join(" ") ?? "bg-muted"}`}
+                  className={`size-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 ${EVENT_COLORS[preset.event_type]?.badge.split(" ").slice(0, 2).join(" ") ?? "bg-muted"}`}
                 >
                   <Zap className="size-3.5" />
                 </span>
@@ -510,6 +519,13 @@ function Simulator() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Scenario Builder */}
+      <ScenarioBuilder
+        onEventSent={(event_type, _user_id, city) => {
+          addFeedItem(event_type, userId, city);
+        }}
+      />
     </div>
   );
 }

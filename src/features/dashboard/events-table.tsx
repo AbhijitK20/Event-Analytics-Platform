@@ -16,6 +16,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "./components";
 import { formatType } from "./use-analytics";
 import { EVENT_COLORS, type RideEvent } from "@/lib/events";
+import { EventDetailSheet } from "./event-detail-sheet";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 type SortKey = "created_at" | "event_type" | "user_id";
 const PAGE_SIZE = 10;
@@ -43,12 +45,15 @@ function MetadataDisplay({ metadata }: { metadata: Record<string, unknown> | nul
 
 export function EventsTable({ events, loading }: { events: RideEvent[]; loading: boolean }) {
   const [query, setQuery] = useState("");
+  const debouncedQuery = useDebouncedValue(query, 300);
   const [sortKey, setSortKey] = useState<SortKey>("created_at");
   const [asc, setAsc] = useState(false);
   const [page, setPage] = useState(0);
+  const [selectedEvent, setSelectedEvent] = useState<RideEvent | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   const rows = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = debouncedQuery.trim().toLowerCase();
     const filtered = q
       ? events.filter((e) =>
           `${e.event_type} ${e.user_id} ${JSON.stringify(e.metadata ?? {})}`
@@ -61,7 +66,7 @@ export function EventsTable({ events, loading }: { events: RideEvent[]; loading:
       const bv = String(b[sortKey]);
       return asc ? av.localeCompare(bv) : bv.localeCompare(av);
     });
-  }, [events, query, sortKey, asc]);
+  }, [events, debouncedQuery, sortKey, asc]);
 
   const pageCount = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
   const current = Math.min(page, pageCount - 1);
@@ -93,6 +98,11 @@ export function EventsTable({ events, loading }: { events: RideEvent[]; loading:
       </button>
     </TableHead>
   );
+
+  const relatedEvents = useMemo(() => {
+    if (!selectedEvent) return [];
+    return events.filter((e) => e.user_id === selectedEvent.user_id);
+  }, [events, selectedEvent]);
 
   if (loading) {
     return (
@@ -176,7 +186,11 @@ export function EventsTable({ events, loading }: { events: RideEvent[]; loading:
                 {visible.map((e) => (
                   <TableRow
                     key={e.id}
-                    className="group border-border/30 transition-colors hover:bg-primary/[0.03]"
+                    className="group border-border/30 transition-colors hover:bg-primary/[0.03] cursor-pointer"
+                    onClick={() => {
+                      setSelectedEvent(e);
+                      setSheetOpen(true);
+                    }}
                   >
                     <TableCell className="whitespace-nowrap text-xs text-muted-foreground font-mono tabular-nums">
                       {new Date(e.created_at).toLocaleString(undefined, {
@@ -240,6 +254,13 @@ export function EventsTable({ events, loading }: { events: RideEvent[]; loading:
           </div>
         </>
       )}
+
+      <EventDetailSheet
+        event={selectedEvent}
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+        relatedEvents={relatedEvents}
+      />
     </div>
   );
 }

@@ -115,9 +115,15 @@ function Landing() {
     <div className="relative overflow-hidden px-4 sm:px-6 py-8">
       {/* Hero Gradient Background — organic, not perfect circles */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute -top-20 left-1/4 w-[500px] h-[400px] bg-gradient-to-br from-cyan-500/8 to-transparent rounded-[40%_60%_70%_30%/40%_50%_60%_50%] blur-3xl" />
-        <div className="absolute top-40 -right-20 w-[350px] h-[350px] bg-gradient-to-bl from-violet-500/6 to-transparent rounded-[60%_40%_30%_70%/60%_30%_70%_40%] blur-3xl" />
-        <div className="absolute top-80 left-0 w-[250px] h-[250px] bg-gradient-to-tr from-amber-500/5 to-transparent rounded-[50%_50%_30%_70%/60%_40%_60%_40%] blur-3xl" />
+        <div className="absolute -top-20 left-1/4 w-[500px] h-[400px] bg-gradient-to-br from-cyan-500/8 to-transparent rounded-[40%_60%_70%_30%/40%_50%_60%_50%] blur-3xl animate-drift" />
+        <div
+          className="absolute top-40 -right-20 w-[350px] h-[350px] bg-gradient-to-bl from-violet-500/6 to-transparent rounded-[60%_40%_30%_70%/60%_30%_70%_40%] blur-3xl animate-drift"
+          style={{ animationDelay: "-5s" }}
+        />
+        <div
+          className="absolute top-80 left-0 w-[250px] h-[250px] bg-gradient-to-tr from-amber-500/5 to-transparent rounded-[50%_50%_30%_70%/60%_40%_60%_40%] blur-3xl animate-drift"
+          style={{ animationDelay: "-10s" }}
+        />
       </div>
 
       <div className="space-y-20 py-12">
@@ -142,7 +148,8 @@ function Landing() {
             <Button
               asChild
               size="lg"
-              className="gap-2 px-6 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 border-0"
+              className="gap-2 px-6 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 border-0 animate-pulse-glow"
+              style={{ animationDuration: "3s" }}
             >
               <Link to="/auth">
                 Get started <ArrowRight className="size-4" />
@@ -190,7 +197,7 @@ function Landing() {
               <div className="absolute top-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
               <CardContent className="relative space-y-4 p-7">
                 <span
-                  className={`flex size-12 items-center justify-center rounded-2xl bg-background/60 backdrop-blur-sm border border-white/10 ${f.iconColor} shadow-lg`}
+                  className={`flex size-12 items-center justify-center rounded-2xl bg-background/60 backdrop-blur-sm border border-white/10 ${f.iconColor} shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6`}
                 >
                   <f.icon className="size-6" />
                 </span>

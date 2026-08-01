@@ -11,6 +11,7 @@ import {
   Pie,
   PieChart,
   ResponsiveContainer,
+  Sector,
   Tooltip,
   XAxis,
   YAxis,
@@ -25,6 +26,7 @@ import {
   Radio,
   Users,
   Wallet,
+  X,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -46,6 +48,9 @@ import {
   Kpi,
 } from "@/features/dashboard/components";
 import { EventsTable } from "@/features/dashboard/events-table";
+import { AlertRulesPanel } from "@/features/dashboard/alert-rules";
+import { CityMap } from "@/features/dashboard/city-map";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -93,6 +98,8 @@ function Dashboard() {
   const [rangeKey, setRangeKey] = useState<RangeKey>("7d");
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState("");
+  const [filterCity, setFilterCity] = useState<string | null>(null);
+  const [filterUser, setFilterUser] = useState<string | null>(null);
 
   const range = useMemo(
     () =>
@@ -106,11 +113,32 @@ function Dashboard() {
   const eventsQuery = useQuery({
     queryKey: ["events", "range", rangeKey, range.from.toISOString().slice(0, 13), customTo],
     queryFn: () => fetchEvents(range),
+    staleTime: 30_000,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10_000),
   });
-  const totalQuery = useQuery({ queryKey: ["events", "count"], queryFn: fetchTotalCount });
+  const totalQuery = useQuery({
+    queryKey: ["events", "count"],
+    queryFn: fetchTotalCount,
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10_000),
+  });
 
   const events = eventsQuery.data ?? [];
-  const stats = useAnalytics(events, range.to.getTime() - range.from.getTime());
+  const filteredEvents = useMemo(() => {
+    let result = events;
+    if (filterCity) {
+      result = result.filter((e) => {
+        const city = (e.metadata as Record<string, unknown> | null)?.city;
+        return typeof city === "string" && city === filterCity;
+      });
+    }
+    if (filterUser) {
+      result = result.filter((e) => e.user_id === filterUser);
+    }
+    return result;
+  }, [events, filterCity, filterUser]);
+  const stats = useAnalytics(filteredEvents, range.to.getTime() - range.from.getTime());
   const loading = eventsQuery.isLoading;
 
   const sparkData = useMemo(() => computeSparkData(stats.overTime), [stats.overTime]);
@@ -143,7 +171,27 @@ function Dashboard() {
             You have {totalQuery.data ?? 0} events tracked today.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {filterCity && (
+            <Badge
+              variant="outline"
+              className="gap-1.5 border-primary/30 text-primary bg-primary/5 cursor-pointer hover:bg-primary/10 animate-slide-in-left active:scale-95"
+              onClick={() => setFilterCity(null)}
+            >
+              City: {filterCity}
+              <X className="size-3 transition-transform duration-200 group-hover:rotate-90" />
+            </Badge>
+          )}
+          {filterUser && (
+            <Badge
+              variant="outline"
+              className="gap-1.5 border-primary/30 text-primary bg-primary/5 cursor-pointer hover:bg-primary/10 animate-slide-in-left active:scale-95"
+              onClick={() => setFilterUser(null)}
+            >
+              User: {filterUser}
+              <X className="size-3 transition-transform duration-200 group-hover:rotate-90" />
+            </Badge>
+          )}
           {onlineCount > 0 && (
             <Badge
               variant="outline"
@@ -160,23 +208,28 @@ function Dashboard() {
 
       {/* Range Selector */}
       <div className="flex flex-wrap items-center gap-2 animate-fade-in-up stagger-1">
-        <div className="flex rounded-xl border border-border/60 bg-muted/30 p-1">
-          {RANGES.map((r) => (
+        <div className="relative flex rounded-xl border border-border/60 bg-muted/30 p-1">
+          {RANGES.map((r, i) => (
             <button
               key={r.key}
               onClick={() => setRangeKey(r.key)}
-              className={`rounded-lg px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
-                rangeKey === r.key
-                  ? "bg-primary/15 text-primary shadow-sm"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+              className={`relative rounded-lg px-3.5 py-1.5 text-xs font-medium transition-colors duration-200 z-10 ${
+                rangeKey === r.key ? "text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {r.label}
             </button>
           ))}
+          <span
+            className="absolute top-1 bottom-1 rounded-lg bg-primary/15 shadow-sm transition-all duration-300 ease-out"
+            style={{
+              left: `calc(${RANGES.findIndex((r) => r.key === rangeKey) * (100 / RANGES.length)}% + 4px)`,
+              width: `calc(${100 / RANGES.length}% - 8px)`,
+            }}
+          />
         </div>
         {rangeKey === "custom" ? (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 animate-fade-in-scale">
             <Input
               type="date"
               value={customFrom}
@@ -254,7 +307,8 @@ function Dashboard() {
       </div>
 
       {/* Events Over Time */}
-      <Card className="panel-surface animate-fade-in-up stagger-2">
+      <ErrorBoundary sectionName="Events over time chart">
+        <Card className="panel-surface animate-fade-in-up stagger-2">
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-semibold">
             Events over time
@@ -310,6 +364,9 @@ function Dashboard() {
                   strokeWidth={2.5}
                   fill="url(#vol)"
                   dot={false}
+                  isAnimationActive={true}
+                  animationDuration={800}
+                  animationEasing="ease-out"
                   activeDot={{
                     r: 5,
                     fill: "var(--chart-1)",
@@ -322,8 +379,10 @@ function Dashboard() {
           )}
         </CardContent>
       </Card>
+      </ErrorBoundary>
 
       {/* Two-column: Top Users + Top Cities */}
+      <ErrorBoundary sectionName="Top users and cities charts">
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="panel-surface animate-fade-in-up stagger-3">
           <CardHeader className="pb-2">
@@ -336,7 +395,17 @@ function Dashboard() {
               <EmptyState />
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats.topUsers} layout="vertical" margin={{ left: 8, right: 12 }}>
+                <BarChart
+                  data={stats.topUsers}
+                  layout="vertical"
+                  margin={{ left: 8, right: 12 }}
+                  onClick={(data) => {
+                    if (data?.activePayload?.[0]) {
+                      const user = data.activePayload[0].payload.user as string;
+                      setFilterUser(filterUser === user ? null : user);
+                    }
+                  }}
+                >
                   <defs>
                     <linearGradient id="bar-user" x1="0" y1="0" x2="1" y2="0">
                       <stop offset="0%" stopColor="var(--chart-2)" stopOpacity={0.9} />
@@ -357,7 +426,16 @@ function Dashboard() {
                     content={<ChartTip />}
                     cursor={{ fill: "var(--muted)", fillOpacity: 0.4 }}
                   />
-                  <Bar dataKey="count" radius={[0, 8, 8, 0]} fill="url(#bar-user)" barSize={18} />
+                  <Bar
+                    dataKey="count"
+                    radius={[0, 8, 8, 0]}
+                    fill="url(#bar-user)"
+                    barSize={18}
+                    className="cursor-pointer"
+                    isAnimationActive={true}
+                    animationDuration={600}
+                    animationEasing="ease-out"
+                  />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -375,7 +453,17 @@ function Dashboard() {
               <EmptyState />
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats.topCities} layout="vertical" margin={{ left: 8, right: 12 }}>
+                <BarChart
+                  data={stats.topCities}
+                  layout="vertical"
+                  margin={{ left: 8, right: 12 }}
+                  onClick={(data) => {
+                    if (data?.activePayload?.[0]) {
+                      const city = data.activePayload[0].payload.city as string;
+                      setFilterCity(filterCity === city ? null : city);
+                    }
+                  }}
+                >
                   <defs>
                     <linearGradient id="bar-city" x1="0" y1="0" x2="1" y2="0">
                       <stop offset="0%" stopColor="var(--chart-3)" stopOpacity={0.9} />
@@ -396,15 +484,47 @@ function Dashboard() {
                     content={<ChartTip />}
                     cursor={{ fill: "var(--muted)", fillOpacity: 0.4 }}
                   />
-                  <Bar dataKey="count" radius={[0, 8, 8, 0]} fill="url(#bar-city)" barSize={18} />
+                  <Bar
+                    dataKey="count"
+                    radius={[0, 8, 8, 0]}
+                    fill="url(#bar-city)"
+                    barSize={18}
+                    className="cursor-pointer"
+                    isAnimationActive={true}
+                    animationDuration={600}
+                    animationEasing="ease-out"
+                  />
                 </BarChart>
               </ResponsiveContainer>
             )}
           </CardContent>
         </Card>
       </div>
+      </ErrorBoundary>
+
+      {/* Event Map */}
+      {!loading && stats.topCities.length > 0 && (
+        <CityMap
+          cities={stats.topCities}
+          onCityClick={(city) => setFilterCity(filterCity === city ? null : city)}
+          activeCity={filterCity}
+        />
+      )}
+
+      {/* Alert Rules */}
+      {!loading && (
+        <AlertRulesPanel
+          stats={{
+            cancelledPct: stats.cancelledPct,
+            avgFare: stats.avgFare,
+            today: stats.today,
+            byType: stats.byType,
+          }}
+        />
+      )}
 
       {/* Events by Type - Donut */}
+      <ErrorBoundary sectionName="Events by type chart">
       <Card className="panel-surface animate-fade-in-up stagger-5">
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-semibold flex items-center gap-2">
@@ -440,6 +560,46 @@ function Dashboard() {
                       outerRadius="82%"
                       paddingAngle={2}
                       strokeWidth={0}
+                      isAnimationActive={true}
+                      animationBegin={200}
+                      animationDuration={800}
+                      animationEasing="ease-out"
+                      activeShape={(props: {
+                        cx?: number;
+                        cy?: number;
+                        innerRadius?: number;
+                        outerRadius?: number;
+                        startAngle?: number;
+                        endAngle?: number;
+                        fill?: string;
+                      }) => {
+                        const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } =
+                          props;
+                        return (
+                          <g>
+                            <Sector
+                              cx={cx}
+                              cy={cy}
+                              innerRadius={innerRadius! - 2}
+                              outerRadius={outerRadius! + 6}
+                              startAngle={startAngle}
+                              endAngle={endAngle}
+                              fill={fill}
+                              opacity={0.9}
+                            />
+                            <Sector
+                              cx={cx}
+                              cy={cy}
+                              innerRadius={outerRadius! + 8}
+                              outerRadius={outerRadius! + 12}
+                              startAngle={startAngle}
+                              endAngle={endAngle}
+                              fill={fill}
+                              opacity={0.4}
+                            />
+                          </g>
+                        );
+                      }}
                     >
                       {stats.byType.map((_, i) => (
                         <Cell key={i} fill={`url(#donut-grad-${i % CHART_COLORS.length})`} />
@@ -474,14 +634,20 @@ function Dashboard() {
           )}
         </CardContent>
       </Card>
+      </ErrorBoundary>
 
       {/* Recent Events Table */}
       <Card className="panel-surface animate-fade-in-up stagger-6">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold">Recent events</CardTitle>
+          <CardTitle className="text-base font-semibold">
+            Recent events
+            {(filterCity || filterUser) && (
+              <span className="ml-2 text-xs font-normal text-muted-foreground">(filtered)</span>
+            )}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <EventsTable events={events} loading={loading} />
+          <EventsTable events={filteredEvents} loading={loading} />
         </CardContent>
       </Card>
     </div>

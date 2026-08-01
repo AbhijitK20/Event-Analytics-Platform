@@ -65,7 +65,12 @@ export function Kpi({
           {loading ? (
             <Skeleton className="mt-2.5 h-10 w-28" />
           ) : (
-            <p className="mt-2 text-4xl font-bold tracking-tight tabular-nums font-mono">{value}</p>
+            <p
+              key={String(value)}
+              className="mt-2 text-4xl font-bold tracking-tight tabular-nums font-mono animate-fade-in-scale"
+            >
+              {value}
+            </p>
           )}
           {trend && !loading && (
             <div className="mt-2.5 flex items-center gap-1.5">
@@ -93,7 +98,7 @@ export function Kpi({
           )}
         </div>
         <div className="flex flex-col items-end gap-2">
-          <span className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 text-primary shadow-lg shadow-primary/10 inset-shadow">
+          <span className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 text-primary shadow-lg shadow-primary/10 inset-shadow transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
             {icon}
           </span>
           {chartData.length > 0 && !loading && (
@@ -113,7 +118,8 @@ export function Kpi({
                     strokeWidth={1.5}
                     fill={`url(#spark-${index})`}
                     dot={false}
-                    isAnimationActive={false}
+                    isAnimationActive={true}
+                    animationDuration={500}
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -172,7 +178,7 @@ export function DonutTooltip({ active, payload }: TipProps) {
 export function EmptyState({ message = "No events in this range" }: { message?: string }) {
   return (
     <div className="flex h-full min-h-[160px] flex-col items-center justify-center gap-2 text-center px-4">
-      <div className="flex size-12 items-center justify-center rounded-2xl bg-muted/50 mb-1">
+      <div className="flex size-12 items-center justify-center rounded-2xl bg-muted/50 mb-1 animate-float">
         <svg
           className="size-6 text-muted-foreground/50"
           fill="none"

@@ -1,4 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
+import { ingestEventsFn, fetchEventsFn, fetchTotalCountFn, clearEventsFn } from "./server-fns";
+import { NewEventSchema } from "./schemas";
 
 export const EVENT_TYPES = [
   "ride_requested",
@@ -62,48 +64,27 @@ export function resolveRange(key: RangeKey, custom?: Partial<DateRange>): DateRa
 
 /** Single ingestion path: every event in the app goes through here. */
 export async function ingestEvents(events: NewEvent[]) {
-  const { data: auth } = await supabase.auth.getUser();
-  const ownerId = auth.user?.id;
-  if (!ownerId) throw new Error("You must be signed in to ingest events");
-
-  const rows = events.map((e) => ({
-    event_type: e.event_type,
-    user_id: e.user_id,
-    metadata: (e.metadata ?? {}) as never,
-    owner_id: ownerId,
-  }));
-
-  for (let i = 0; i < rows.length; i += 100) {
-    const { error } = await supabase.from("events").insert(rows.slice(i, i + 100));
-    if (error) throw new Error(error.message);
-  }
-  return events.length;
+  // Validate each event against Zod schema
+  const validated = events.map((e) => NewEventSchema.parse(e));
+  const result = await ingestEventsFn({ data: { events: validated } });
+  return result.count;
 }
 
 export async function clearEvents() {
-  const { data: auth } = await supabase.auth.getUser();
-  const ownerId = auth.user?.id;
-  if (!ownerId) throw new Error("You must be signed in to clear events");
-  const { error } = await supabase.from("events").delete().eq("owner_id", ownerId);
-  if (error) throw new Error(error.message);
+  await clearEventsFn({ data: undefined });
 }
 
 export async function fetchEvents(range: DateRange, limit = 2000): Promise<RideEvent[]> {
-  const { data, error } = await supabase
-    .from("events")
-    .select("id, event_type, user_id, metadata, created_at")
-    .gte("created_at", range.from.toISOString())
-    .lte("created_at", range.to.toISOString())
-    .order("created_at", { ascending: false })
-    .limit(limit);
-  if (error) throw new Error(error.message);
-  return (data ?? []) as RideEvent[];
+  const result = await fetchEventsFn({
+    data: {
+      from: range.from.toISOString(),
+      to: range.to.toISOString(),
+      limit,
+    },
+  });
+  return result as unknown as RideEvent[];
 }
 
 export async function fetchTotalCount(): Promise<number> {
-  const { count, error } = await supabase
-    .from("events")
-    .select("id", { count: "exact", head: true });
-  if (error) throw new Error(error.message);
-  return count ?? 0;
+  return fetchTotalCountFn({ data: undefined });
 }
