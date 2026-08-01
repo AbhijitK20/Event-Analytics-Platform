@@ -237,7 +237,7 @@ function Simulator() {
       toast.success(`${n} random events ingested`);
       for (let i = 0; i < Math.min(5, n); i++) {
         const ev = buildSampleEvents(1)[0];
-        addFeedItem(ev.event_type, ev.user_id, ev.metadata?.city as string | undefined);
+        if (ev) addFeedItem(ev.event_type, ev.user_id, ev.metadata?.city as string | undefined);
       }
       broadcastEvent({ event_type: "ride_requested", user_id: "batch", city: "Multiple cities" });
       invalidate();

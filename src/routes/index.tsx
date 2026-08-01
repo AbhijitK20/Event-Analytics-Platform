@@ -67,7 +67,7 @@ function useCountUp(target: number, duration = 1200) {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !started.current) {
+        if (entry?.isIntersecting && !started.current) {
           started.current = true;
           const start = performance.now();
           const step = (now: number) => {
