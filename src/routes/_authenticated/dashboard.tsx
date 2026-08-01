@@ -20,6 +20,7 @@ import {
   Ban,
   CalendarClock,
   CheckCircle2,
+  Eye,
   PieChart as PieIcon,
   Radio,
   Users,
@@ -32,6 +33,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRealtimeEvents } from "@/hooks/use-realtime-events";
+import { useBroadcastNotifications } from "@/hooks/use-broadcast-notifications";
+import { usePresence } from "@/hooks/use-presence";
 import { fetchEvents, fetchTotalCount, resolveRange, type RangeKey } from "@/lib/events";
 import { useAnalytics } from "@/features/dashboard/use-analytics";
 import {
@@ -75,6 +78,8 @@ function computeSparkData(events: ReturnType<typeof useAnalytics>["overTime"]): 
 
 function Dashboard() {
   useRealtimeEvents();
+  useBroadcastNotifications();
+  const { onlineCount } = usePresence("Viewer", "dashboard");
 
   const [rangeKey, setRangeKey] = useState<RangeKey>("7d");
   const [customFrom, setCustomFrom] = useState("");
@@ -127,9 +132,19 @@ function Dashboard() {
             Every ingested ride event lands here the moment it is written.
           </p>
         </div>
-        <Badge variant="outline" className="gap-2 border-primary/30 text-primary bg-primary/5">
-          <Radio className="size-3.5 animate-pulse" /> Live stream
-        </Badge>
+        <div className="flex items-center gap-2">
+          {onlineCount > 0 && (
+            <Badge
+              variant="outline"
+              className="gap-1.5 border-emerald-500/30 text-emerald-400 bg-emerald-500/5"
+            >
+              <Eye className="size-3" /> {onlineCount} online
+            </Badge>
+          )}
+          <Badge variant="outline" className="gap-2 border-primary/30 text-primary bg-primary/5">
+            <Radio className="size-3.5 animate-pulse" /> Live stream
+          </Badge>
+        </div>
       </div>
 
       {/* Range Selector */}

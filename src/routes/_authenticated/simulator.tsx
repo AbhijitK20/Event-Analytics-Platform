@@ -35,6 +35,7 @@ import {
   buildSampleEvents,
   type PresetEvent,
 } from "@/features/simulator/metadata";
+import { useBroadcastSender } from "@/hooks/use-broadcast-notifications";
 
 export const Route = createFileRoute("/_authenticated/simulator")({
   head: () => ({
@@ -145,6 +146,7 @@ function Simulator() {
   const [feedItems, setFeedItems] = useState<FeedItem[]>([]);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["events"] });
+  const { broadcastEvent } = useBroadcastSender();
 
   const recentEventsQuery = useQuery({
     queryKey: ["events", "simulator-feed"],
@@ -196,6 +198,18 @@ function Simulator() {
         }
       })();
       addFeedItem(eventType, userId, city);
+      broadcastEvent({
+        event_type: eventType,
+        user_id: userId,
+        city,
+        fare: (() => {
+          try {
+            return JSON.parse(metadata).fare as number | undefined;
+          } catch {
+            return undefined;
+          }
+        })(),
+      });
       invalidate();
     },
     onError: (e: Error) => toast.error("Ingestion failed", { description: e.message }),
@@ -210,6 +224,12 @@ function Simulator() {
     onSuccess: (_n, preset) => {
       toast.success("Preset event sent", { description: preset.label });
       addFeedItem(preset.event_type, preset.user_id, preset.metadata.city as string | undefined);
+      broadcastEvent({
+        event_type: preset.event_type,
+        user_id: preset.user_id,
+        city: preset.metadata.city as string | undefined,
+        fare: preset.metadata.fare as number | undefined,
+      });
       invalidate();
     },
     onError: (e: Error) => toast.error("Ingestion failed", { description: e.message }),
@@ -223,6 +243,7 @@ function Simulator() {
         const ev = buildSampleEvents(1)[0];
         addFeedItem(ev.event_type, ev.user_id, ev.metadata?.city as string | undefined);
       }
+      broadcastEvent({ event_type: "ride_requested", user_id: "batch", city: "Multiple cities" });
       invalidate();
     },
     onError: (e: Error) => toast.error("Ingestion failed", { description: e.message }),
