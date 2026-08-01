@@ -309,197 +309,200 @@ function Dashboard() {
       {/* Events Over Time */}
       <ErrorBoundary sectionName="Events over time chart">
         <Card className="panel-surface animate-fade-in-up stagger-2">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold">
-            Events over time
-            <span className="ml-2 text-xs font-normal text-muted-foreground">
-              by {stats.bucketLabel}
-            </span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="h-[280px] pt-2">
-          {loading ? (
-            <Skeleton className="size-full rounded-lg" />
-          ) : events.length === 0 ? (
-            <EmptyState />
-          ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={stats.overTime} margin={{ top: 4, right: 4, left: -12, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="vol" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.45} />
-                    <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0.02} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="var(--border)"
-                  vertical={false}
-                  strokeOpacity={0.5}
-                />
-                <XAxis
-                  dataKey="bucket"
-                  stroke="var(--muted-foreground)"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                  dy={8}
-                />
-                <YAxis
-                  stroke="var(--muted-foreground)"
-                  fontSize={11}
-                  allowDecimals={false}
-                  width={32}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <Tooltip
-                  content={<ChartTip />}
-                  cursor={{ stroke: "var(--primary)", strokeOpacity: 0.3 }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="count"
-                  stroke="var(--chart-1)"
-                  strokeWidth={2.5}
-                  fill="url(#vol)"
-                  dot={false}
-                  isAnimationActive={true}
-                  animationDuration={800}
-                  animationEasing="ease-out"
-                  activeDot={{
-                    r: 5,
-                    fill: "var(--chart-1)",
-                    stroke: "var(--background)",
-                    strokeWidth: 2,
-                  }}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          )}
-        </CardContent>
-      </Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold">
+              Events over time
+              <span className="ml-2 text-xs font-normal text-muted-foreground">
+                by {stats.bucketLabel}
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="h-[280px] pt-2">
+            {loading ? (
+              <Skeleton className="size-full rounded-lg" />
+            ) : events.length === 0 ? (
+              <EmptyState />
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={stats.overTime}
+                  margin={{ top: 4, right: 4, left: -12, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="vol" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.45} />
+                      <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="var(--border)"
+                    vertical={false}
+                    strokeOpacity={0.5}
+                  />
+                  <XAxis
+                    dataKey="bucket"
+                    stroke="var(--muted-foreground)"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                    dy={8}
+                  />
+                  <YAxis
+                    stroke="var(--muted-foreground)"
+                    fontSize={11}
+                    allowDecimals={false}
+                    width={32}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <Tooltip
+                    content={<ChartTip />}
+                    cursor={{ stroke: "var(--primary)", strokeOpacity: 0.3 }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="count"
+                    stroke="var(--chart-1)"
+                    strokeWidth={2.5}
+                    fill="url(#vol)"
+                    dot={false}
+                    isAnimationActive={true}
+                    animationDuration={800}
+                    animationEasing="ease-out"
+                    activeDot={{
+                      r: 5,
+                      fill: "var(--chart-1)",
+                      stroke: "var(--background)",
+                      strokeWidth: 2,
+                    }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
       </ErrorBoundary>
 
       {/* Two-column: Top Users + Top Cities */}
       <ErrorBoundary sectionName="Top users and cities charts">
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card className="panel-surface animate-fade-in-up stagger-3">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Top users</CardTitle>
-          </CardHeader>
-          <CardContent className="h-[280px] pt-2">
-            {loading ? (
-              <Skeleton className="size-full rounded-lg" />
-            ) : stats.topUsers.length === 0 ? (
-              <EmptyState />
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={stats.topUsers}
-                  layout="vertical"
-                  margin={{ left: 8, right: 12 }}
-                  onClick={(data) => {
-                    if (data?.activePayload?.[0]) {
-                      const user = data.activePayload[0].payload.user as string;
-                      setFilterUser(filterUser === user ? null : user);
-                    }
-                  }}
-                >
-                  <defs>
-                    <linearGradient id="bar-user" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="var(--chart-2)" stopOpacity={0.9} />
-                      <stop offset="100%" stopColor="var(--chart-2)" stopOpacity={0.6} />
-                    </linearGradient>
-                  </defs>
-                  <XAxis type="number" hide allowDecimals={false} />
-                  <YAxis
-                    type="category"
-                    dataKey="user"
-                    width={80}
-                    stroke="var(--muted-foreground)"
-                    fontSize={11}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <Tooltip
-                    content={<ChartTip />}
-                    cursor={{ fill: "var(--muted)", fillOpacity: 0.4 }}
-                  />
-                  <Bar
-                    dataKey="count"
-                    radius={[0, 8, 8, 0]}
-                    fill="url(#bar-user)"
-                    barSize={18}
-                    className="cursor-pointer"
-                    isAnimationActive={true}
-                    animationDuration={600}
-                    animationEasing="ease-out"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <Card className="panel-surface animate-fade-in-up stagger-3">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-semibold">Top users</CardTitle>
+            </CardHeader>
+            <CardContent className="h-[280px] pt-2">
+              {loading ? (
+                <Skeleton className="size-full rounded-lg" />
+              ) : stats.topUsers.length === 0 ? (
+                <EmptyState />
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={stats.topUsers}
+                    layout="vertical"
+                    margin={{ left: 8, right: 12 }}
+                    onClick={(data) => {
+                      if (data?.activePayload?.[0]) {
+                        const user = data.activePayload[0].payload.user as string;
+                        setFilterUser(filterUser === user ? null : user);
+                      }
+                    }}
+                  >
+                    <defs>
+                      <linearGradient id="bar-user" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="var(--chart-2)" stopOpacity={0.9} />
+                        <stop offset="100%" stopColor="var(--chart-2)" stopOpacity={0.6} />
+                      </linearGradient>
+                    </defs>
+                    <XAxis type="number" hide allowDecimals={false} />
+                    <YAxis
+                      type="category"
+                      dataKey="user"
+                      width={80}
+                      stroke="var(--muted-foreground)"
+                      fontSize={11}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <Tooltip
+                      content={<ChartTip />}
+                      cursor={{ fill: "var(--muted)", fillOpacity: 0.4 }}
+                    />
+                    <Bar
+                      dataKey="count"
+                      radius={[0, 8, 8, 0]}
+                      fill="url(#bar-user)"
+                      barSize={18}
+                      className="cursor-pointer"
+                      isAnimationActive={true}
+                      animationDuration={600}
+                      animationEasing="ease-out"
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
 
-        <Card className="panel-surface animate-fade-in-up stagger-4">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Top cities</CardTitle>
-          </CardHeader>
-          <CardContent className="h-[280px] pt-2">
-            {loading ? (
-              <Skeleton className="size-full rounded-lg" />
-            ) : stats.topCities.length === 0 ? (
-              <EmptyState />
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={stats.topCities}
-                  layout="vertical"
-                  margin={{ left: 8, right: 12 }}
-                  onClick={(data) => {
-                    if (data?.activePayload?.[0]) {
-                      const city = data.activePayload[0].payload.city as string;
-                      setFilterCity(filterCity === city ? null : city);
-                    }
-                  }}
-                >
-                  <defs>
-                    <linearGradient id="bar-city" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="var(--chart-3)" stopOpacity={0.9} />
-                      <stop offset="100%" stopColor="var(--chart-3)" stopOpacity={0.6} />
-                    </linearGradient>
-                  </defs>
-                  <XAxis type="number" hide allowDecimals={false} />
-                  <YAxis
-                    type="category"
-                    dataKey="city"
-                    width={80}
-                    stroke="var(--muted-foreground)"
-                    fontSize={11}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <Tooltip
-                    content={<ChartTip />}
-                    cursor={{ fill: "var(--muted)", fillOpacity: 0.4 }}
-                  />
-                  <Bar
-                    dataKey="count"
-                    radius={[0, 8, 8, 0]}
-                    fill="url(#bar-city)"
-                    barSize={18}
-                    className="cursor-pointer"
-                    isAnimationActive={true}
-                    animationDuration={600}
-                    animationEasing="ease-out"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+          <Card className="panel-surface animate-fade-in-up stagger-4">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-semibold">Top cities</CardTitle>
+            </CardHeader>
+            <CardContent className="h-[280px] pt-2">
+              {loading ? (
+                <Skeleton className="size-full rounded-lg" />
+              ) : stats.topCities.length === 0 ? (
+                <EmptyState />
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={stats.topCities}
+                    layout="vertical"
+                    margin={{ left: 8, right: 12 }}
+                    onClick={(data) => {
+                      if (data?.activePayload?.[0]) {
+                        const city = data.activePayload[0].payload.city as string;
+                        setFilterCity(filterCity === city ? null : city);
+                      }
+                    }}
+                  >
+                    <defs>
+                      <linearGradient id="bar-city" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="var(--chart-3)" stopOpacity={0.9} />
+                        <stop offset="100%" stopColor="var(--chart-3)" stopOpacity={0.6} />
+                      </linearGradient>
+                    </defs>
+                    <XAxis type="number" hide allowDecimals={false} />
+                    <YAxis
+                      type="category"
+                      dataKey="city"
+                      width={80}
+                      stroke="var(--muted-foreground)"
+                      fontSize={11}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <Tooltip
+                      content={<ChartTip />}
+                      cursor={{ fill: "var(--muted)", fillOpacity: 0.4 }}
+                    />
+                    <Bar
+                      dataKey="count"
+                      radius={[0, 8, 8, 0]}
+                      fill="url(#bar-city)"
+                      barSize={18}
+                      className="cursor-pointer"
+                      isAnimationActive={true}
+                      animationDuration={600}
+                      animationEasing="ease-out"
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </ErrorBoundary>
 
       {/* Event Map */}
@@ -525,115 +528,124 @@ function Dashboard() {
 
       {/* Events by Type - Donut */}
       <ErrorBoundary sectionName="Events by type chart">
-      <Card className="panel-surface animate-fade-in-up stagger-5">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <PieIcon className="size-4 text-muted-foreground" />
-            Events by type
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="h-[300px] pt-2">
-          {loading ? (
-            <Skeleton className="size-full rounded-lg" />
-          ) : stats.byType.length === 0 ? (
-            <EmptyState />
-          ) : (
-            <div className="flex h-full items-center gap-6">
-              <div className="h-full flex-1 relative">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <defs>
-                      {CHART_COLORS.map((color, i) => (
-                        <linearGradient key={i} id={`donut-grad-${i}`} x1="0" y1="0" x2="1" y2="1">
-                          <stop offset="0%" stopColor={color} stopOpacity={1} />
-                          <stop offset="100%" stopColor={color} stopOpacity={0.6} />
-                        </linearGradient>
-                      ))}
-                    </defs>
-                    <Pie
-                      data={stats.byType}
-                      dataKey="count"
-                      nameKey="type"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius="50%"
-                      outerRadius="82%"
-                      paddingAngle={2}
-                      strokeWidth={0}
-                      isAnimationActive={true}
-                      animationBegin={200}
-                      animationDuration={800}
-                      animationEasing="ease-out"
-                      activeShape={(props: {
-                        cx?: number;
-                        cy?: number;
-                        innerRadius?: number;
-                        outerRadius?: number;
-                        startAngle?: number;
-                        endAngle?: number;
-                        fill?: string;
-                      }) => {
-                        const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } =
-                          props;
-                        return (
-                          <g>
-                            <Sector
-                              cx={cx}
-                              cy={cy}
-                              innerRadius={innerRadius! - 2}
-                              outerRadius={outerRadius! + 6}
-                              startAngle={startAngle}
-                              endAngle={endAngle}
-                              fill={fill}
-                              opacity={0.9}
-                            />
-                            <Sector
-                              cx={cx}
-                              cy={cy}
-                              innerRadius={outerRadius! + 8}
-                              outerRadius={outerRadius! + 12}
-                              startAngle={startAngle}
-                              endAngle={endAngle}
-                              fill={fill}
-                              opacity={0.4}
-                            />
-                          </g>
-                        );
-                      }}
-                    >
-                      {stats.byType.map((_, i) => (
-                        <Cell key={i} fill={`url(#donut-grad-${i % CHART_COLORS.length})`} />
-                      ))}
-                    </Pie>
-                    <Tooltip content={<DonutTooltip />} />
-                  </PieChart>
-                </ResponsiveContainer>
-                {/* Center label */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-2xl font-bold font-mono tabular-nums">{events.length}</span>
-                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                    events
-                  </span>
+        <Card className="panel-surface animate-fade-in-up stagger-5">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <PieIcon className="size-4 text-muted-foreground" />
+              Events by type
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="h-[300px] pt-2">
+            {loading ? (
+              <Skeleton className="size-full rounded-lg" />
+            ) : stats.byType.length === 0 ? (
+              <EmptyState />
+            ) : (
+              <div className="flex h-full items-center gap-6">
+                <div className="h-full flex-1 relative">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <defs>
+                        {CHART_COLORS.map((color, i) => (
+                          <linearGradient
+                            key={i}
+                            id={`donut-grad-${i}`}
+                            x1="0"
+                            y1="0"
+                            x2="1"
+                            y2="1"
+                          >
+                            <stop offset="0%" stopColor={color} stopOpacity={1} />
+                            <stop offset="100%" stopColor={color} stopOpacity={0.6} />
+                          </linearGradient>
+                        ))}
+                      </defs>
+                      <Pie
+                        data={stats.byType}
+                        dataKey="count"
+                        nameKey="type"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius="50%"
+                        outerRadius="82%"
+                        paddingAngle={2}
+                        strokeWidth={0}
+                        isAnimationActive={true}
+                        animationBegin={200}
+                        animationDuration={800}
+                        animationEasing="ease-out"
+                        activeShape={(props: {
+                          cx?: number;
+                          cy?: number;
+                          innerRadius?: number;
+                          outerRadius?: number;
+                          startAngle?: number;
+                          endAngle?: number;
+                          fill?: string;
+                        }) => {
+                          const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } =
+                            props;
+                          return (
+                            <g>
+                              <Sector
+                                cx={cx}
+                                cy={cy}
+                                innerRadius={innerRadius! - 2}
+                                outerRadius={outerRadius! + 6}
+                                startAngle={startAngle}
+                                endAngle={endAngle}
+                                fill={fill}
+                                opacity={0.9}
+                              />
+                              <Sector
+                                cx={cx}
+                                cy={cy}
+                                innerRadius={outerRadius! + 8}
+                                outerRadius={outerRadius! + 12}
+                                startAngle={startAngle}
+                                endAngle={endAngle}
+                                fill={fill}
+                                opacity={0.4}
+                              />
+                            </g>
+                          );
+                        }}
+                      >
+                        {stats.byType.map((_, i) => (
+                          <Cell key={i} fill={`url(#donut-grad-${i % CHART_COLORS.length})`} />
+                        ))}
+                      </Pie>
+                      <Tooltip content={<DonutTooltip />} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  {/* Center label */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span className="text-2xl font-bold font-mono tabular-nums">
+                      {events.length}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                      events
+                    </span>
+                  </div>
+                </div>
+                <div className="flex-shrink-0 space-y-2 pr-4">
+                  {stats.byType.map((entry, i) => (
+                    <div key={entry.type} className="flex items-center gap-2.5 text-xs">
+                      <span
+                        className="size-2.5 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }}
+                      />
+                      <span className="text-muted-foreground truncate max-w-[100px]">
+                        {entry.type}
+                      </span>
+                      <span className="font-semibold tabular-nums ml-auto">{entry.count}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="flex-shrink-0 space-y-2 pr-4">
-                {stats.byType.map((entry, i) => (
-                  <div key={entry.type} className="flex items-center gap-2.5 text-xs">
-                    <span
-                      className="size-2.5 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }}
-                    />
-                    <span className="text-muted-foreground truncate max-w-[100px]">
-                      {entry.type}
-                    </span>
-                    <span className="font-semibold tabular-nums ml-auto">{entry.count}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            )}
+          </CardContent>
+        </Card>
       </ErrorBoundary>
 
       {/* Recent Events Table */}
