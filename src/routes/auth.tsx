@@ -81,30 +81,31 @@ function AuthPage() {
 
   return (
     <div className="relative min-h-[80vh] flex items-center justify-center px-4">
-      {/* Background gradient */}
+      {/* Background — organic blobs, not perfect circles */}
       <div className="absolute inset-0 -z-10 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-gradient-to-b from-primary/6 to-transparent rounded-full blur-3xl" />
+        <div className="absolute top-1/3 left-1/4 w-[400px] h-[300px] bg-gradient-to-br from-cyan-500/8 to-transparent rounded-[40%_60%_70%_30%/40%_50%_60%_50%] blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[250px] bg-gradient-to-tl from-violet-500/6 to-transparent rounded-[60%_40%_30%_70%/60%_30%_70%_40%] blur-3xl" />
       </div>
 
       <div className="w-full max-w-md animate-fade-in-scale">
-        <Card className="panel-surface overflow-hidden">
-          {/* Gradient accent bar */}
-          <div className="h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60" />
+        <Card className="panel-surface overflow-hidden border-white/5">
+          {/* Gradient accent bar — not uniform */}
+          <div className="h-1 bg-gradient-to-r from-cyan-500/60 via-teal-400 to-emerald-500/60" />
 
           <CardHeader className="text-center pt-8 pb-4">
-            <span className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/10 mb-3">
+            <span className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500/15 to-teal-500/10 text-cyan-400 border border-cyan-500/10 mb-3 shadow-lg shadow-cyan-500/10">
               <Activity className="size-5" />
             </span>
-            <CardTitle className="text-xl font-semibold">Welcome back</CardTitle>
+            <CardTitle className="text-xl font-bold tracking-tight">Welcome back</CardTitle>
             <CardDescription className="text-sm text-muted-foreground">
               Sign in to access the event analytics dashboard.
             </CardDescription>
           </CardHeader>
 
           <CardContent className="space-y-5 px-8 pb-8">
-            {/* Google Sign In */}
+            {/* Google Sign In — styled like Nodus */}
             <Button
-              className="w-full h-11 gap-2.5 font-medium"
+              className="w-full h-11 gap-2.5 font-medium bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-foreground"
               size="lg"
               disabled={busy}
               onClick={withGoogle}

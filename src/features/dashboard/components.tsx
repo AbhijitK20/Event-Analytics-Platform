@@ -43,10 +43,12 @@ export function Kpi({
   const accent = ACCENT_COLORS[index % ACCENT_COLORS.length];
   const sparkColor = SPARKLINE_COLORS[index % SPARKLINE_COLORS.length];
   const chartData = sparkData?.map((v, i) => ({ v, i })) ?? [];
+  // Slight rotation on alternating cards — breaks the perfect grid feel
+  const tilt = index % 2 === 0 ? "rotate-[-0.2deg]" : "rotate-[0.15deg]";
 
   return (
     <Card
-      className={`panel-surface glow-hover relative overflow-hidden animate-fade-in-up stagger-${Math.min(index + 1, 6)}`}
+      className={`panel-surface glow-hover relative overflow-hidden animate-fade-in-up stagger-${Math.min(index + 1, 6)} ${tilt}`}
     >
       <div
         className={`absolute inset-x-0 top-0 h-28 bg-gradient-to-b ${accent} pointer-events-none opacity-80`}

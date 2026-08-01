@@ -113,33 +113,47 @@ function Landing() {
 
   return (
     <div className="relative overflow-hidden px-4 sm:px-6 py-8">
-      {/* Hero Gradient Background */}
+      {/* Hero Gradient Background — organic, not perfect circles */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-b from-primary/8 via-primary/3 to-transparent rounded-full blur-3xl" />
-        <div className="absolute top-20 right-0 w-[400px] h-[400px] bg-gradient-to-bl from-chart-2/6 to-transparent rounded-full blur-3xl" />
-        <div className="absolute top-40 left-0 w-[300px] h-[300px] bg-gradient-to-br from-chart-4/5 to-transparent rounded-full blur-3xl" />
+        <div className="absolute -top-20 left-1/4 w-[500px] h-[400px] bg-gradient-to-br from-cyan-500/8 to-transparent rounded-[40%_60%_70%_30%/40%_50%_60%_50%] blur-3xl" />
+        <div className="absolute top-40 -right-20 w-[350px] h-[350px] bg-gradient-to-bl from-violet-500/6 to-transparent rounded-[60%_40%_30%_70%/60%_30%_70%_40%] blur-3xl" />
+        <div className="absolute top-80 left-0 w-[250px] h-[250px] bg-gradient-to-tr from-amber-500/5 to-transparent rounded-[50%_50%_30%_70%/60%_40%_60%_40%] blur-3xl" />
       </div>
 
       <div className="space-y-20 py-12">
         {/* Hero */}
         <section className="mx-auto max-w-3xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-medium text-primary animate-fade-in-up">
-            <Activity className="size-3.5" /> Event analytics for ride operations
+          {/* Badge with hand-drawn feel */}
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-cyan-400 animate-fade-in-up backdrop-blur-sm">
+            <span className="size-1.5 rounded-full bg-cyan-400 animate-pulse" />
+            Event analytics for ride operations
           </span>
-          <h1 className="mt-8 text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl animate-fade-in-up stagger-1 leading-[1.1]">
-            Every ride event, visible <span className="text-primary">the moment it happens.</span>
+          <h1 className="mt-8 text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl animate-fade-in-up stagger-1 leading-[1.08]">
+            Every ride event, visible{" "}
+            <span className="bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 bg-clip-text text-transparent">
+              the moment it happens.
+            </span>
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-balance text-muted-foreground leading-relaxed animate-fade-in-up stagger-2">
             Kamel Ride is an internal engineering dashboard: simulate ride lifecycle events, stream
             them into Postgres, and watch analytics update live.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-3 animate-fade-in-up stagger-3">
-            <Button asChild size="lg" className="gap-2 px-6">
+            <Button
+              asChild
+              size="lg"
+              className="gap-2 px-6 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 border-0"
+            >
               <Link to="/auth">
                 Get started <ArrowRight className="size-4" />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="gap-2 px-6">
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="gap-2 px-6 border-white/10 hover:bg-white/5"
+            >
               <a
                 href="https://github.com/AbhijitK20/Event-Analytics-Platform"
                 target="_blank"
@@ -160,23 +174,27 @@ function Landing() {
           </div>
         </section>
 
-        {/* Features */}
+        {/* Features — varied card styles, not uniform */}
         <section className="grid gap-5 md:grid-cols-3">
           {FEATURES.map((f, i) => (
             <Card
               key={f.title}
-              className={`panel-surface glow-hover group relative overflow-hidden animate-fade-in-up stagger-${i + 1}`}
+              className={`panel-surface glow-hover group relative overflow-hidden animate-fade-in-up stagger-${i + 1} ${
+                i === 1 ? "md:translate-y-4" : i === 2 ? "md:translate-y-8" : ""
+              }`}
             >
               <div
-                className={`absolute inset-x-0 top-0 h-28 bg-gradient-to-b ${f.accent} pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity`}
+                className={`absolute inset-x-0 top-0 h-32 bg-gradient-to-b ${f.accent} pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500`}
               />
+              {/* Hand-drawn style accent line */}
+              <div className="absolute top-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
               <CardContent className="relative space-y-4 p-7">
                 <span
-                  className={`flex size-11 items-center justify-center rounded-xl bg-background/50 backdrop-blur-sm border border-border/30 ${f.iconColor}`}
+                  className={`flex size-12 items-center justify-center rounded-2xl bg-background/60 backdrop-blur-sm border border-white/10 ${f.iconColor} shadow-lg`}
                 >
-                  <f.icon className="size-5" />
+                  <f.icon className="size-6" />
                 </span>
-                <h2 className="text-base font-semibold">{f.title}</h2>
+                <h2 className="text-lg font-bold tracking-tight">{f.title}</h2>
                 <p className="text-sm text-muted-foreground leading-relaxed">{f.body}</p>
               </CardContent>
             </Card>

@@ -194,16 +194,18 @@ function Dashboard() {
         ) : null}
       </div>
 
-      {/* KPI Grid */}
+      {/* KPI Grid — asymmetric: hero card spans 2 cols */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <Kpi
-          label="Total Events"
-          value={totalQuery.isError ? "—" : (totalQuery.data ?? 0)}
-          icon={<Activity className="size-4.5" />}
-          loading={totalQuery.isLoading}
-          sparkData={sparkData}
-          index={0}
-        />
+        <div className="sm:col-span-2 xl:col-span-1">
+          <Kpi
+            label="Total Events"
+            value={totalQuery.isError ? "—" : (totalQuery.data ?? 0)}
+            icon={<Activity className="size-4.5" />}
+            loading={totalQuery.isLoading}
+            sparkData={sparkData}
+            index={0}
+          />
+        </div>
         <Kpi
           label="Today's Events"
           value={stats.today}
