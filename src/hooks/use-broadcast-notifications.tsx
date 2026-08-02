@@ -78,6 +78,8 @@ export function useBroadcastNotifications() {
 export function useBroadcastSender() {
   const broadcastEvent = useCallback(async (event: EventPayload) => {
     const channel = supabase.channel(CHANNEL_NAME);
+    // Subscribe first so the realtime connection is established before sending
+    await channel.subscribe();
     await channel.send({
       type: "broadcast",
       event: "new_event",

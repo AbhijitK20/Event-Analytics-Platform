@@ -75,7 +75,8 @@ function AuthPage() {
     }
     if (mode === "signup" && !data.session) {
       toast.success("Check your email to confirm your account", {
-        description: "You can also disable email confirmation in your Supabase dashboard under Authentication > Settings.",
+        description:
+          "You can also disable email confirmation in your Supabase dashboard under Authentication > Settings.",
       });
       return;
     }
