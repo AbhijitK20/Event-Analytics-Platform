@@ -2,12 +2,18 @@
 -- This was a data migration artifact that allows any authenticated user
 -- to delete orphaned events, which is a security risk.
 
--- Drop the old policy
+-- Drop the old policies
 DROP POLICY IF EXISTS "Users can delete own events" ON public.events;
+DROP POLICY IF EXISTS "Authenticated can read events" ON public.events;
 
--- Recreate without the owner_id IS NULL gap
+-- Recreate DELETE without the owner_id IS NULL gap
 CREATE POLICY "Users can delete own events" ON public.events
   FOR DELETE TO authenticated
+  USING (owner_id = auth.uid());
+
+-- Users can ONLY see their own events
+CREATE POLICY "Users read own events" ON public.events
+  FOR SELECT TO authenticated
   USING (owner_id = auth.uid());
 
 -- Add composite index for owner-scoped queries (dashboard performance)

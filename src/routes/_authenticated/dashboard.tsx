@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMemo, useState, useCallback } from "react";
 import {
   Area,
   AreaChart,
@@ -27,6 +27,7 @@ import {
   Users,
   Wallet,
   X,
+  Sparkles,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -38,7 +39,14 @@ import { useRealtimeEvents } from "@/hooks/use-realtime-events";
 import { useBroadcastNotifications } from "@/hooks/use-broadcast-notifications";
 import { usePresence } from "@/hooks/use-presence";
 import { useAuthUser } from "@/features/auth/use-auth-user";
-import { fetchEvents, fetchTotalCount, resolveRange, type RangeKey } from "@/lib/events";
+import {
+  fetchEvents,
+  fetchTotalCount,
+  ingestEvents,
+  resolveRange,
+  type RangeKey,
+} from "@/lib/events";
+import { buildSampleEvents } from "@/features/simulator/metadata";
 import { useAnalytics } from "@/features/dashboard/use-analytics";
 import {
   CHART_COLORS,
@@ -100,6 +108,14 @@ function Dashboard() {
   const [customTo, setCustomTo] = useState("");
   const [filterCity, setFilterCity] = useState<string | null>(null);
   const [filterUser, setFilterUser] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  const quickStartMutation = useMutation({
+    mutationFn: () => ingestEvents(buildSampleEvents(50)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+    },
+  });
 
   const range = useMemo(
     () =>
@@ -246,6 +262,37 @@ function Dashboard() {
           </div>
         ) : null}
       </div>
+
+      {/* Quick Start — only show when empty */}
+      {!loading && events.length === 0 && (
+        <Card className="panel-surface animate-fade-in-up border-dashed border-primary/20">
+          <CardContent className="flex flex-col items-center justify-center gap-4 py-12 text-center">
+            <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary animate-float">
+              <Activity className="size-7" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-lg font-semibold">Welcome to Kamel Ride!</h2>
+              <p className="text-sm text-muted-foreground max-w-md">
+                Your dashboard is empty. Generate sample ride events to see analytics in action, or
+                head to the Simulator to create custom events.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                onClick={() => quickStartMutation.mutate()}
+                disabled={quickStartMutation.isPending}
+                className="gap-2"
+              >
+                <Sparkles className="size-4" />
+                {quickStartMutation.isPending ? "Generating…" : "Generate 50 sample events"}
+              </Button>
+              <Button asChild variant="outline" className="gap-2">
+                <Link to="/simulator">Open Simulator</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* KPI Grid — asymmetric: hero card spans 2 cols */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

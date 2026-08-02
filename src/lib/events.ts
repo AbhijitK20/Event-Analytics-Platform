@@ -89,9 +89,14 @@ export async function clearEvents() {
 }
 
 export async function fetchEvents(range: DateRange, limit = 2000): Promise<RideEvent[]> {
+  const { data: auth } = await supabase.auth.getUser();
+  const ownerId = auth.user?.id;
+  if (!ownerId) return [];
+
   const { data, error } = await supabase
     .from("events")
     .select("id, event_type, user_id, metadata, created_at")
+    .eq("owner_id", ownerId)
     .gte("created_at", range.from.toISOString())
     .lte("created_at", range.to.toISOString())
     .order("created_at", { ascending: false })
@@ -101,9 +106,14 @@ export async function fetchEvents(range: DateRange, limit = 2000): Promise<RideE
 }
 
 export async function fetchTotalCount(): Promise<number> {
+  const { data: auth } = await supabase.auth.getUser();
+  const ownerId = auth.user?.id;
+  if (!ownerId) return 0;
+
   const { count, error } = await supabase
     .from("events")
-    .select("id", { count: "exact", head: true });
+    .select("id", { count: "exact", head: true })
+    .eq("owner_id", ownerId);
   if (error) throw new Error(error.message);
   return count ?? 0;
 }
