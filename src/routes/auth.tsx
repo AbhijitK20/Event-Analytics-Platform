@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Activity, ArrowRight, Mail, Lock, Loader2, Eye, EyeOff } from "lucide-react";
@@ -63,13 +63,14 @@ function AuthPage() {
         : supabase.auth.signUp({
             email: email.trim(),
             password,
-            options: { emailRedirectTo: window.location.origin },
           });
     const { data, error } = await fn;
     setBusy(false);
     if (error) {
+      console.error("[Auth]", mode, "error:", error, "data:", data);
+      const msg = error.message || JSON.stringify(error) || "Unknown error";
       toast.error(mode === "signin" ? "Sign-in failed" : "Sign-up failed", {
-        description: error.message,
+        description: String(msg),
       });
       return;
     }
@@ -188,6 +189,14 @@ function AuthPage() {
                     {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                   </button>
                 </div>
+              </div>
+              <div className="flex items-center justify-end">
+                <Link
+                  to="/forgot-password"
+                  className="text-xs text-muted-foreground/70 hover:text-primary transition-colors"
+                >
+                  Forgot password?
+                </Link>
               </div>
               <div className="flex gap-2.5 pt-1">
                 <Button
