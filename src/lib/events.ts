@@ -1,5 +1,4 @@
 import { supabase } from "@/integrations/supabase/client";
-import { NewEventSchema } from "./schemas";
 
 export const EVENT_TYPES = [
   "ride_requested",
@@ -67,9 +66,7 @@ export async function ingestEvents(events: NewEvent[]) {
   const ownerId = auth.user?.id;
   if (!ownerId) throw new Error("You must be signed in to ingest events");
 
-  const validated = events.map((e) => NewEventSchema.parse(e));
-
-  const rows = validated.map((e) => ({
+  const rows = events.map((e) => ({
     event_type: e.event_type,
     user_id: e.user_id,
     metadata: (e.metadata ?? {}) as never,
