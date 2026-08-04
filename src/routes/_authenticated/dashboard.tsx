@@ -28,6 +28,7 @@ import {
   Wallet,
   X,
   Sparkles,
+  Download,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -59,6 +60,7 @@ import { EventsTable } from "@/features/dashboard/events-table";
 import { AlertRulesPanel } from "@/features/dashboard/alert-rules";
 import { CityMap } from "@/features/dashboard/city-map";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { exportDashboardToPdf } from "@/features/dashboard/pdf-export";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -208,6 +210,26 @@ function Dashboard() {
               <X className="size-3 transition-transform duration-200 group-hover:rotate-90" />
             </Badge>
           )}
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 h-7 text-xs"
+            onClick={() =>
+              exportDashboardToPdf(
+                {
+                  totalEvents: totalQuery.data ?? 0,
+                  todayEvents: stats.today,
+                  uniqueUsers: stats.uniqueUsers,
+                  completionRate: stats.completionRate,
+                  avgFare: stats.avgFare,
+                  cancelledPct: stats.cancelledPct,
+                },
+                profile.name,
+              )
+            }
+          >
+            <Download className="size-3" /> PDF
+          </Button>
           {onlineCount > 0 && (
             <Badge
               variant="outline"

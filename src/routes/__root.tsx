@@ -9,7 +9,17 @@ import {
 } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState, type ReactNode } from "react";
-import { Activity, BarChart3, LayoutDashboard, LogOut, Menu, Moon, Sun, X } from "lucide-react";
+import {
+  Activity,
+  BarChart3,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Moon,
+  Sun,
+  X,
+  History,
+} from "lucide-react";
 
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
@@ -144,6 +154,7 @@ function RootComponent() {
 const NAV_ITEMS = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/simulator", label: "Simulator", icon: BarChart3 },
+  { to: "/audit", label: "Audit Log", icon: History },
 ] as const;
 
 function AppLayout() {

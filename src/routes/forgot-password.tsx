@@ -40,12 +40,13 @@ function ForgotPasswordPage() {
       return;
     }
     setBusy(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim());
     setBusy(false);
     if (error) {
-      toast.error("Failed to send reset email", { description: error.message });
+      console.error("[ForgotPassword] error:", error);
+      toast.error("Failed to send reset email", {
+        description: error.message || JSON.stringify(error),
+      });
       return;
     }
     setSent(true);
