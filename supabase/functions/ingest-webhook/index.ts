@@ -3,7 +3,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-webhook-signature",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-webhook-signature",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
@@ -43,10 +44,10 @@ Deno.serve(async (req) => {
 
   try {
     if (req.method !== "POST") {
-      return new Response(
-        JSON.stringify({ error: "Method not allowed. Use POST." }),
-        { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ error: "Method not allowed. Use POST." }), {
+        status: 405,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const body = await req.text();
@@ -55,10 +56,10 @@ Deno.serve(async (req) => {
     // Verify signature if webhook secret is set
     const webhookSecret = Deno.env.get("WEBHOOK_SECRET");
     if (webhookSecret && !verifySignature(body, signature, webhookSecret)) {
-      return new Response(
-        JSON.stringify({ error: "Invalid signature" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ error: "Invalid signature" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // Parse payload
@@ -66,24 +67,24 @@ Deno.serve(async (req) => {
     try {
       payload = JSON.parse(body);
     } catch {
-      return new Response(
-        JSON.stringify({ error: "Invalid JSON" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ error: "Invalid JSON" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     if (!payload.events || !Array.isArray(payload.events) || payload.events.length === 0) {
-      return new Response(
-        JSON.stringify({ error: "payload.events must be a non-empty array" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ error: "payload.events must be a non-empty array" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     if (payload.events.length > 500) {
-      return new Response(
-        JSON.stringify({ error: "Max 500 events per request" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ error: "Max 500 events per request" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // Validate each event
@@ -96,7 +97,7 @@ Deno.serve(async (req) => {
         invalidEvents.push({ index: i, error: "Event must be an object" });
         continue;
       }
-      if (!EVENT_TYPES.includes(event.event_type as typeof EVENT_TYPES[number])) {
+      if (!EVENT_TYPES.includes(event.event_type as (typeof EVENT_TYPES)[number])) {
         invalidEvents.push({ index: i, error: `Invalid event_type: ${event.event_type}` });
         continue;
       }
@@ -108,10 +109,10 @@ Deno.serve(async (req) => {
     }
 
     if (validEvents.length === 0) {
-      return new Response(
-        JSON.stringify({ error: "No valid events", details: invalidEvents }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ error: "No valid events", details: invalidEvents }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // Create Supabase client with service role
@@ -131,10 +132,10 @@ Deno.serve(async (req) => {
     const { data, error } = await supabase.from("events").insert(rows).select("id");
 
     if (error) {
-      return new Response(
-        JSON.stringify({ error: error.message }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     return new Response(
@@ -146,9 +147,9 @@ Deno.serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
-    return new Response(
-      JSON.stringify({ error: (err as Error).message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    return new Response(JSON.stringify({ error: (err as Error).message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });

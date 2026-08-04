@@ -142,7 +142,7 @@ function Dashboard() {
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10_000),
   });
 
-  const events = eventsQuery.data ?? [];
+  const events = useMemo(() => eventsQuery.data ?? [], [eventsQuery.data]);
   const filteredEvents = useMemo(() => {
     let result = events;
     if (filterCity) {

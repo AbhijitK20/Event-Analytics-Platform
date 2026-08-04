@@ -97,7 +97,7 @@ function AuditLog() {
     },
   });
 
-  const entries = auditQuery.data ?? [];
+  const entries = useMemo(() => auditQuery.data ?? [], [auditQuery.data]);
 
   const filtered = useMemo(() => {
     let result = entries;
